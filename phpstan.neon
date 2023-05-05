@@ -4,3 +4,10 @@ parameters:
         - src/
 
     level: 8
+
+    ignoreErrors:
+        -
+            message: '#Function config not found#'
+        -
+            message: '#Call to static method add\(\) on an unknown class Illuminate\\Foundation\\Console\\AboutCommand#'
+            path: src/ServiceProvider.php

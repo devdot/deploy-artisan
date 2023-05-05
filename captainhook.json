@@ -4,7 +4,12 @@
         "actions": [
             {
                 "action": "php vendor/bin/phpcbf src --standard=PSR12"
-            },
+            }
+        ]
+    },
+    "pre-push": {
+        "enabled": true,
+        "actions": [
             {
                 "action": "vendor/bin/phpstan"
             }
