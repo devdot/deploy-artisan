@@ -1,0 +1,40 @@
+{
+    "name": "devdot/deploy-artisan",
+    "description": "Utility for simple deployment",
+    "keywords": [
+        "deploy artisan",
+        "laravel deploy",
+        "devdot",
+        "laravel"
+    ],
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Devdot\\DeployArtisan\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Thomas Kuschan",
+            "email": "mail@thomaskuschan.de"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "illuminate/contracts": "^9",
+        "illuminate/console": "^9"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Devdot\\DeployArtisan\\ServiceProvider"
+            ]
+        }
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.10",
+        "squizlabs/php_codesniffer": "^3.7",
+        "captainhook/captainhook": "^5.16"
+    }
+}
