@@ -64,18 +64,14 @@ class Configuration
         if ($role === null) {
             // it is not set, so we assume whatever fits the application environment
             if (App::environment('local')) {
-                $role = self::ENV_ROLE_CLIENT;
+                $role = Role::Client->value;
             } elseif (App::environment('production')) {
-                $role = self::ENV_ROLE_SERVER;
+                $role = Role::Server->value;
             }
         }
 
         // use match to assign the role
-        $this->role = match (strtolower($role)) {
-            self::ENV_ROLE_CLIENT => Role::Client,
-            self::ENV_ROLE_SERVER => Role::Server,
-            default => Role::Undefined,
-        };
+        $this->role = Role::tryFrom(strtoupper($role)) ?? Role::Undefined;
 
         // check if the role is undefined, and if so whether that's a good thing or not
         if ($this->role === Role::Undefined && !empty($role)) {

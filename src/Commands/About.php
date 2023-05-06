@@ -25,7 +25,7 @@ class About extends Command
 
         // let's display main info
         $this->displaySection('Deployment Configuration', [
-            'Role' => Helper::styleDeploymentRole($config->role),
+            'Role' => $config->role->getStyledString(),
         ]);
 
         // let's see if we have credentials loaded
