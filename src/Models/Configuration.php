@@ -4,17 +4,18 @@ namespace Devdot\DeployArtisan\Models;
 
 use Devdot\DeployArtisan\Exceptions\InvalidCredentialsConfigurationException;
 use Devdot\DeployArtisan\Exceptions\InvalidRoleConfigurationException;
+use Devdot\DeployArtisan\Exceptions\InvalidTypeConfigurationException;
 use Illuminate\Support\Facades\App;
 
 class Configuration
 {
     public Role $role = Role::Undefined;
+    public Type $type = Type::Undefined;
 
     public ?Credentials $credentials = null;
 
     final protected const ENV_ROLE = 'DEPLOY_ROLE';
-    final protected const ENV_ROLE_CLIENT = 'client';
-    final protected const ENV_ROLE_SERVER = 'server';
+    final protected const ENV_TYPE = 'DEPLOY_TYPE';
     final protected const ENV_CREDENTIALS_USERNAME = 'DEPLOY_CRED_USERNAME';
     final protected const ENV_CREDENTIALS_PASSWORD = 'DEPLOY_CRED_PASSWORD';
     final protected const ENV_CREDENTIALS_HOST = 'DEPLOY_CRED_HOST';
@@ -39,6 +40,9 @@ class Configuration
     {
         // load the role
         $this->loadRole();
+
+        // load the type (also from env)
+        $this->loadType();
 
         // load the credentials
         if ($this->loadCredentials()) {
@@ -77,6 +81,21 @@ class Configuration
         if ($this->role === Role::Undefined && !empty($role)) {
             // this is an issue because the role was set but not recognized
             throw new InvalidRoleConfigurationException($role);
+        }
+    }
+
+    protected function loadType()
+    {
+        // attempt reading from env
+        $type = env(self::ENV_TYPE);
+
+        // use enum to match
+        $this->type = Type::tryFrom(strtoupper($type)) ?? Type::Undefined;
+
+        // make sure this isn't an invalid value
+        if ($this->type === Type::Undefined && !empty($type)) {
+            // this could not be matched correctly, meaning the value was wrong
+            throw new InvalidTypeConfigurationException($type);
         }
     }
 
