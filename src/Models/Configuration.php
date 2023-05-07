@@ -21,6 +21,11 @@ class Configuration
     public bool $cleanup = true;
 
     /**
+     * @var array<string>
+     */
+    public array $transferFiles = [];
+
+    /**
      * @var array<int, DeployCommand>
      */
     public array $clientCommands = [];
@@ -171,6 +176,10 @@ class Configuration
 
         if (isset($config['cleanup'])) {
             $this->cleanup = $config['cleanup'] == true;
+        }
+
+        if (isset($config['transfer_files']) && is_array($config['transfer_files'])) {
+            $this->transferFiles = $config['transfer_files'];
         }
 
         // load commands
