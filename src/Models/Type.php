@@ -10,6 +10,7 @@ namespace Devdot\DeployArtisan\Models;
 enum Type: string
 {
     case SSH = 'SSH';
+    case Filesystem = 'FILESYSTEM';
     case Manual = 'MANUAL';
     case Undefined = 'UNDEFINED';
 

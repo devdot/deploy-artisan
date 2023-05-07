@@ -4,6 +4,8 @@ namespace Devdot\DeployArtisan\Commands;
 
 use Devdot\DeployArtisan\DeployCommands\CleanupCommand;
 use Devdot\DeployArtisan\Models\Role;
+use Devdot\DeployArtisan\Models\Type;
+use Devdot\DeployArtisan\Transfers\FilesystemTransfer;
 use Illuminate\Console\Command;
 
 class Push extends Command
@@ -69,6 +71,32 @@ class Push extends Command
         $this->line('<bg=blue>  #2 transfer       </>');
         $this->line('<bg=blue>                    </>');
         $this->newLine();
+
+        // create the transfer from enum
+        $transfer = match ($this->configuration->type) {
+            Type::Filesystem => new FilesystemTransfer($this, $this->configuration),
+            default => null,
+        };
+
+        // make sure the transfer is not null
+        if ($transfer === null) {
+            $this->error('Could not create transfer object for type ' . $this->configuration->type->value);
+            return Command::FAILURE;
+        }
+
+        $this->line('Start transfer of type ' . $this->configuration->type->value);
+        if (!$transfer->pushToServer()) {
+            $this->error('failed!');
+            return Command::FAILURE;
+        }
+
+        $this->line('Execute the server script');
+        if (!$transfer->callServerScript($git)) {
+            $this->error('failed!');
+            return Command::FAILURE;
+        }
+
+        $this->info('Transfer successful');
 
         if ($this->configuration->cleanup === false) {
             $this->newLine();
