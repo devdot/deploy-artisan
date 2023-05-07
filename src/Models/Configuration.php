@@ -2,6 +2,9 @@
 
 namespace Devdot\DeployArtisan\Models;
 
+use Devdot\DeployArtisan\Contracts\DeployCommand;
+use Devdot\DeployArtisan\DeployCommands\ShellCommand;
+use Devdot\DeployArtisan\Exceptions\InvalidCommandConfigurationException;
 use Devdot\DeployArtisan\Exceptions\InvalidCredentialsConfigurationException;
 use Devdot\DeployArtisan\Exceptions\InvalidRoleConfigurationException;
 use Devdot\DeployArtisan\Exceptions\InvalidTypeConfigurationException;
@@ -13,6 +16,19 @@ class Configuration
     public Type $type = Type::Undefined;
 
     public ?Credentials $credentials = null;
+
+    public string $transferFileName = 'deployment.zip';
+    public bool $cleanup = true;
+
+    /**
+     * @var array<int, DeployCommand>
+     */
+    public array $clientCommands = [];
+
+    /**
+     * @var array<int, DeployCommand>
+     */
+    public array $serverCommands = [];
 
     final protected const ENV_ROLE = 'DEPLOY_ROLE';
     final protected const ENV_TYPE = 'DEPLOY_TYPE';
@@ -56,6 +72,7 @@ class Configuration
         }
 
         // now load the config file
+        $this->loadConfig();
     }
 
     /**
@@ -133,6 +150,59 @@ class Configuration
         }
 
         return true;
+    }
+
+    /**
+     * Load data from config file
+     */
+    protected function loadConfig(): void
+    {
+        $config = config('deployment');
+        // TODO: Throw exception when config file not present
+        // if the config is null, let's load from our own file
+        if ($config === null) {
+            $config = require __DIR__ . '../../config/deployment.php';
+        }
+
+        // use the values and write them to ourself
+        if (isset($config['transfer_file_name'])) {
+            $this->transferFileName = strval($config['transfer_file_name']);
+        }
+
+        if (isset($config['cleanup'])) {
+            $this->cleanup = $config['cleanup'] == true;
+        }
+
+        // load commands
+        $this->clientCommands = $this->prepareCommands($config['client'] ?? []);
+        $this->serverCommands = $this->prepareCommands($config['server'] ?? []);
+    }
+
+    /**
+     * Prepare a list of commands into proper executable command objects
+     * @param array<int|string, string>
+     * @return array<int, DeployCommand>
+     */
+    protected function prepareCommands(array $commands): array
+    {
+        $return = [];
+
+        // lets go through the list of input commands
+        foreach ($commands as $command) {
+            // check if it is a classname
+            if (is_subclass_of($command, DeployCommand::class)) {
+                // yes it is, so we construct it and add to the array
+                $return[] = new $command();
+            } elseif (class_exists($command)) {
+                // throw an exception because it does not have the interface implemented
+                throw new InvalidCommandConfigurationException($command);
+            } else {
+                // simply put the string into a shell command
+                $return[] = new ShellCommand($command);
+            }
+        }
+
+        return $return;
     }
 
     public function write(): bool

@@ -27,6 +27,8 @@ class About extends Command
         $this->displaySection('Deployment Configuration', [
             'Role' => $config->role->getStyledString(),
             'Type' => $config->type->getStyledString(),
+            'Transfer File' => $config->transferFileName,
+            'Cleanup' => $config->cleanup,
         ]);
 
         // let's see if we have credentials loaded
@@ -37,6 +39,22 @@ class About extends Command
                 'Host:' => $config->credentials->host,
                 'Port:' => $config->credentials->port,
             ]);
+        }
+
+        // and show client commands
+        if (!empty($config->clientCommands)) {
+            $this->displaySection('Client Commands', []);
+            foreach ($config->clientCommands as $command) {
+                $this->line('  > ' . $command->preRunComment());
+            }
+        }
+
+        // server commands
+        if (!empty($config->serverCommands)) {
+            $this->displaySection('Server Commands', []);
+            foreach ($config->serverCommands as $command) {
+                $this->line('  > ' . $command->preRunComment());
+            }
         }
 
         // and get general configuration
