@@ -13,10 +13,10 @@ class About extends Command
 
     protected $description = 'Overview of the deployment configuration';
 
-    public function handle()
+    public function handle(): int
     {
         // get the local configuration
-        if (!$this->loadConfiguration()) {
+        if (!$this->loadConfiguration() || !$this->configuration) {
             return Command::FAILURE;
         }
 
