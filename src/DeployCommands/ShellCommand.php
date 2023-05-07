@@ -9,17 +9,32 @@ use Illuminate\Console\Command;
 class ShellCommand implements DeployCommand
 {
     public function __construct(
-        protected readonly string $shellCommand = '',
+        protected string $shellCommand = '',
     ) {
+    }
+
+    public function setParameters(array $parameters): void
+    {
+        // we don't expect parameters
     }
 
     public function handle(Configuration $config): int
     {
+        // make sure the command is redirecting stderror
+        if (substr($this->shellCommand, -5) !== ' 2>&1') {
+            $this->shellCommand .= ' 2>&1';
+        }
+
         $output = [];
         $code = 0;
         exec($this->shellCommand, $output, $code);
 
-        return Command::SUCCESS;
+        // simply output the lines
+        foreach ($output as $line) {
+            echo $line . PHP_EOL;
+        }
+
+        return $code;
     }
 
     public function preRunComment(): string

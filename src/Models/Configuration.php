@@ -203,17 +203,33 @@ class Configuration
 
         // lets go through the list of input commands
         foreach ($commands as $command) {
+            // first check if this is an array
+            $params = [];
+            $object = null;
+            if (is_array($command)) {
+                $params = $command;
+                $command = array_shift($params);
+            }
+
             // check if it is a classname
             if (is_subclass_of($command, DeployCommand::class)) {
                 // yes it is, so we construct it and add to the array
-                $return[] = new $command();
+                $object = new $command();
             } elseif (class_exists($command)) {
                 // throw an exception because it does not have the interface implemented
                 throw new InvalidCommandConfigurationException($command);
             } else {
                 // simply put the string into a shell command
-                $return[] = new ShellCommand($command);
+                $object = new ShellCommand($command);
             }
+
+            // see if we have params to add
+            if (!empty($params)) {
+                $object->setParameters($params);
+            }
+
+            // add to the array
+            $return[] = $object;
         }
 
         return $return;
