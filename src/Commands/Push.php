@@ -2,6 +2,7 @@
 
 namespace Devdot\DeployArtisan\Commands;
 
+use Devdot\DeployArtisan\DeployCommands\CleanupCommand;
 use Devdot\DeployArtisan\Models\Role;
 use Illuminate\Console\Command;
 
@@ -54,6 +55,12 @@ class Push extends Command
         $this->line('<bg=blue>                    </>');
         $this->newLine();
 
+        if ($this->configuration->cleanup === false) {
+            $this->newLine();
+            $this->info('Completed without cleanup');
+            return Command::SUCCESS;
+        }
+
         // step 3: cleanup
         $this->newLine();
         $this->line('<bg=blue>                    </>');
@@ -61,6 +68,11 @@ class Push extends Command
         $this->line('<bg=blue>                    </>');
         $this->newLine();
 
+        $cleanup = new CleanupCommand();
+        $cleanup->handle($this->configuration);
+
+        $this->newLine();
+        $this->info('Completed!');
 
         return Command::SUCCESS;
     }
