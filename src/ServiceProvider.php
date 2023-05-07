@@ -30,6 +30,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         // install all our commands
         $this->commands([
             Commands\About::class,
+            Commands\Push::class,
         ]);
     }
 }
