@@ -3,6 +3,7 @@
 namespace Devdot\DeployArtisan\DeployCommands;
 
 use Devdot\DeployArtisan\Contracts\DeployCommand;
+use Devdot\DeployArtisan\Models\Configuration;
 use Illuminate\Console\Command;
 
 class ShellCommand implements DeployCommand
@@ -12,7 +13,7 @@ class ShellCommand implements DeployCommand
     ) {
     }
 
-    public function handle(): int
+    public function handle(Configuration $config): int
     {
         $output = [];
         $code = 0;
