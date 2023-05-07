@@ -34,6 +34,21 @@ class Push extends Command
         // let's say a quick hello
         $this->line('Start deployment <fg=yellow>push</> to server.');
 
+        $git = null;
+        if ($this->configuration->verifyGit) {
+            // use a command to load the last commit
+            $output = [];
+            exec('git log -1 --pretty=oneline', $output);
+            $git = explode(' ', implode(' ', $output), 2)[0] ?? null;
+
+            // output
+            if ($git) {
+                $this->line('Last git commit is <fg=gray>' . $git . '</>');
+            } else {
+                $this->warn('Could not read last git commit!');
+            }
+        }
+
         // step 1: run client script
         $this->newLine();
         $this->line('<bg=blue>                    </>');

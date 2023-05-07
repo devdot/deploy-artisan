@@ -18,6 +18,7 @@ class Configuration
     public ?Credentials $credentials = null;
 
     public string $transferFileName = 'deployment.zip';
+    public bool $verifyGit = true;
     public bool $cleanup = true;
 
     /**
@@ -172,6 +173,10 @@ class Configuration
         // use the values and write them to ourself
         if (isset($config['transfer_file_name'])) {
             $this->transferFileName = strval($config['transfer_file_name']);
+        }
+
+        if (isset($config['verify_git'])) {
+            $this->verifyGit = $config['verify_git'] == true;
         }
 
         if (isset($config['cleanup'])) {
