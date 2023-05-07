@@ -179,7 +179,12 @@ class Configuration
         }
 
         if (isset($config['transfer_files']) && is_array($config['transfer_files'])) {
-            $this->transferFiles = $config['transfer_files'];
+            $this->transferFiles = [];
+            foreach ($config['transfer_files'] as $file) {
+                // allow the non-existing paths to be added anyways, they might get generated during the script
+                $realpath = realpath($file);
+                $this->transferFiles[] = $realpath === false ? $file : $realpath;
+            }
         }
 
         // load commands
