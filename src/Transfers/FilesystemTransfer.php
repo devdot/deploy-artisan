@@ -3,6 +3,7 @@
 namespace Devdot\DeployArtisan\Transfers;
 
 use Devdot\DeployArtisan\Contracts\Transfer;
+use Devdot\DeployArtisan\DeployCommands\ShellCommand;
 use Illuminate\Console\Command;
 use Devdot\DeployArtisan\Models\Configuration;
 
@@ -68,16 +69,11 @@ class FilesystemTransfer implements Transfer
         }
 
         // execute the server script
-        $output = [];
-        $cmd = 'php ' . $this->serverDirectory . DIRECTORY_SEPARATOR . 'artisan deploy:pull' . $verify;
-        $this->command->line($cmd);
-        $return = 0;
-        exec($cmd . ' 2>&1', $output, $return);
-
-        // and display outputs
-        foreach ($output as $line) {
-            echo $line . PHP_EOL;
-        }
+        $str = 'php ' . $this->serverDirectory . DIRECTORY_SEPARATOR . 'artisan deploy:pull --no-interaction' . $verify;
+        // strip the environment
+        $cmd = new ShellCommand('env -i ' . $str);
+        echo $str . PHP_EOL;
+        $return = $cmd->handle($this->config);
 
         return $return === 0;
     }
