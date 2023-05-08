@@ -3,6 +3,7 @@
 namespace Devdot\DeployArtisan\Commands;
 
 use Devdot\DeployArtisan\DeployCommands\CleanupCommand;
+use Devdot\DeployArtisan\DeployCommands\ShellCommand;
 use Devdot\DeployArtisan\Models\Role;
 use Devdot\DeployArtisan\Models\Type;
 use Devdot\DeployArtisan\Transfers\FilesystemTransfer;
@@ -41,9 +42,10 @@ class Push extends Command
         $git = null;
         if ($this->configuration->verifyGit) {
             // use a command to load the last commit
-            $output = [];
-            exec('git log -1 --pretty=oneline', $output);
-            $git = explode(' ', implode(' ', $output), 2)[0] ?? null;
+            $cmd = new ShellCommand('git log -1 --pretty=oneline');
+            $cmd->setParameters(['silent' => true]);
+            $cmd->handle($this->configuration);
+            $git = explode(' ', $cmd->getProcess()->getOutput(), 2)[0] ?? null;
 
             // output
             if ($git) {

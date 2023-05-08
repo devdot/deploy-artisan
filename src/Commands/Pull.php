@@ -39,9 +39,10 @@ class Pull extends Command
             $compare = strval($this->option('verify-git'));
 
             // use a command to load the last commit
-            $output = [];
-            exec('git log -1 --pretty=oneline', $output);
-            $git = explode(' ', implode(' ', $output), 2)[0] ?? null;
+            $cmd = new ShellCommand('git log -1 --pretty=oneline');
+            $cmd->setParameters(['silent' => true]);
+            $cmd->handle($this->configuration);
+            $git = explode(' ', $cmd->getProcess()->getOutput(), 2)[0] ?? null;
 
             // and now compare
             if ($compare !== $git) {
