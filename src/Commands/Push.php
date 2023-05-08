@@ -7,6 +7,7 @@ use Devdot\DeployArtisan\Models\Role;
 use Devdot\DeployArtisan\Models\Type;
 use Devdot\DeployArtisan\Transfers\FilesystemTransfer;
 use Devdot\DeployArtisan\Transfers\ManualTransfer;
+use Devdot\DeployArtisan\Transfers\SSHTransfer;
 use Illuminate\Console\Command;
 
 class Push extends Command
@@ -76,6 +77,7 @@ class Push extends Command
         // create the transfer from enum
         $transfer = match ($this->configuration->type) {
             Type::Filesystem => new FilesystemTransfer($this, $this->configuration),
+            Type::SSH => new SSHTransfer($this, $this->configuration),
             Type::Manual => new ManualTransfer($this, $this->configuration),
             default => null,
         };
