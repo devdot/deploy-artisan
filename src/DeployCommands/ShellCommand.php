@@ -19,6 +19,7 @@ class ShellCommand implements DeployCommand
      * @var array<string>
      */
     protected array $env = [];
+    protected string $input = '';
 
 
 
@@ -49,8 +50,19 @@ class ShellCommand implements DeployCommand
 
     public function handle(Configuration $config): int
     {
+        $this->handlePrepare($config);
+        return $this->handleRun($config);
+    }
+
+    public function handlePrepare(Configuration $config): void
+    {
         // use symfony process
         $this->setupProcess();
+    }
+
+    public function handleRun(Configuration $config): int
+    {
+        // run either loud or quiet
         if ($this->silent) {
             $this->process->run();
         } else {
