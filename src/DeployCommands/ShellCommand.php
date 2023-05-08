@@ -5,36 +5,84 @@ namespace Devdot\DeployArtisan\DeployCommands;
 use Devdot\DeployArtisan\Contracts\DeployCommand;
 use Devdot\DeployArtisan\Models\Configuration;
 use Illuminate\Console\Command;
+use Symfony\Component\Process\Process;
 
 class ShellCommand implements DeployCommand
 {
+    protected Process $process;
+    final protected const DEFAULT_TIMEOUT = 360;
+
+    protected string $cwd = '';
+    protected int $timeout = self::DEFAULT_TIMEOUT;
+    protected bool $silent = false;
+    /**
+     * @var array<string>
+     */
+    protected array $env = [];
+
+
+
     public function __construct(
         protected string $shellCommand = '',
     ) {
     }
 
+    /**
+     * @param array{cwd?: string, timeout?: int, silent?: bool, env?: array<string>} $parameters
+     * @return void
+     */
     public function setParameters(array $parameters): void
     {
-        // we don't expect parameters
+        if (isset($parameters['cwd']) && is_string($parameters['cwd'])) {
+            $this->cwd = $parameters['cwd'];
+        }
+        if (isset($parameters['timeout']) && is_numeric($parameters['timeout'])) {
+            $this->timeout = (int) $parameters['timeout'];
+        }
+        if (isset($parameters['silent'])) {
+            $this->silent = $parameters['silent'] == true;
+        }
+        if (isset($parameters['env']) && (is_array($parameters['env']) || is_string($parameters['env']))) {
+            $this->env = is_array($parameters['env']) ? $parameters['env'] : [$parameters['env']];
+        }
     }
 
     public function handle(Configuration $config): int
     {
-        // make sure the command is redirecting stderror
-        if (substr($this->shellCommand, -5) !== ' 2>&1') {
-            $this->shellCommand .= ' 2>&1';
+        // use symfony process
+        $this->setupProcess();
+        if ($this->silent) {
+            $this->process->run();
+        } else {
+            // simply print as it comes off the buffer
+            $this->process->run(function ($type, $buffer) {
+                if ($type === Process::ERR) {
+                    echo "\033[31m";
+                }
+                echo $buffer;
+                if ($type === Process::ERR) {
+                    echo "\033[0m";
+                }
+            });
         }
 
-        $output = [];
-        $code = 0;
-        exec($this->shellCommand, $output, $code);
+        return $this->process->getExitCode();
+    }
 
-        // simply output the lines
-        foreach ($output as $line) {
-            echo $line . PHP_EOL;
-        }
+    public function getProcess(): Process
+    {
+        return $this->process;
+    }
 
-        return $code;
+    private function setupProcess(): void
+    {
+        $this->process = Process::fromShellCommandline(
+            $this->shellCommand,
+            empty($this->cwd) ? base_path() : $this->cwd,
+            $this->env,
+            null,
+            $this->timeout,
+        );
     }
 
     public function preRunComment(): string

@@ -69,9 +69,13 @@ class FilesystemTransfer implements Transfer
         }
 
         // execute the server script
-        $str = 'php ' . $this->serverDirectory . DIRECTORY_SEPARATOR . 'artisan deploy:pull --no-interaction' . $verify;
+        $str = 'php artisan deploy:pull --no-interaction' . $verify;
         // strip the environment
         $cmd = new ShellCommand('env -i ' . $str);
+        $cmd->setParameters([
+            'cwd' => $this->serverDirectory,
+            'env' => [],
+        ]);
         echo $str . PHP_EOL;
         $return = $cmd->handle($this->config);
 
