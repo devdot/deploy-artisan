@@ -21,7 +21,7 @@
         }
     ],
     "require": {
-        "php": "^8.0",
+        "php": "^8.1",
         "illuminate/contracts": "^9",
         "illuminate/console": "^9",
         "symfony/process": "^6"
