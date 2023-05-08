@@ -93,7 +93,7 @@ class ZipTransferFileCommand extends ShellCommand
         $this->totalFiles = $zip->numFiles;
 
         // close the file
-        echo '[PHP] close ' . $config->transferFileName;
+        echo '[PHP] close ' . $config->transferFileName . PHP_EOL;
         $zip->close();
     }
 
