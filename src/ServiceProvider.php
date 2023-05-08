@@ -33,5 +33,10 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             Commands\Push::class,
             Commands\Pull::class,
         ]);
+
+        // publish the config file
+        $this->publishes([
+            __DIR__ . '/../config/deployment.php' => config_path('deployment.php'),
+        ], 'deploy-artisan-config');
     }
 }

@@ -2,6 +2,7 @@ parameters:
 
     paths:
         - src/
+        - config/
 
     level: 8
 
@@ -12,6 +13,8 @@ parameters:
             message: '#Function base_path not found#'
         -
             message: '#Function public_path not found#'
+        -
+            message: '#Function config_path not found#'
         -
             message: '#Call to static method add\(\) on an unknown class Illuminate\\Foundation\\Console\\AboutCommand#'
             path: src/ServiceProvider.php
