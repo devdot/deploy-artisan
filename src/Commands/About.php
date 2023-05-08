@@ -76,11 +76,6 @@ class About extends Command
             }
         }
 
-        // and get general configuration
-
-        // $this->line(`git status --branch --porcelain`);
-        // $this->line(`git fetch --dry-run -v`);
-
         return Command::SUCCESS;
     }
 }
