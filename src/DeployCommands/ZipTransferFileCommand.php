@@ -22,11 +22,14 @@ class ZipTransferFileCommand extends ShellCommand
         }
     }
 
+    /**
+     * @param array{use_shell?: bool} $parameters
+     */
     public function setParameters(array $parameters): void
     {
         // lets see if the use_shell param is set
-        if (isset($parameters['use_shell']) && is_bool($parameters['use_shell'])) {
-            $this->useShell = $parameters['use_shell'];
+        if (isset($parameters['use_shell'])) {
+            $this->useShell = $parameters['use_shell'] == true;
         }
     }
 
@@ -106,6 +109,7 @@ class ZipTransferFileCommand extends ShellCommand
 
         // and get the files
         $files = scandir($absolutePath);
+        $files = $files === false ? [] : $files;
         foreach ($files as $file) {
             if ($file === '.' || $file === '..') {
                 continue;

@@ -22,7 +22,7 @@ class Push extends Command
     public function handle(): int
     {
         // get the local configuration
-        if (!$this->loadConfiguration() || !$this->configuration) {
+        if (!$this->loadConfiguration()) {
             return Command::FAILURE;
         }
 

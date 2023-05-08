@@ -58,7 +58,7 @@ class Configuration
         return $this->role === Role::Server;
     }
 
-    public function load()
+    public function load(): void
     {
         // load the role
         $this->loadRole();
@@ -84,7 +84,7 @@ class Configuration
     /**
      * Load role data from the environment file
      */
-    protected function loadRole()
+    protected function loadRole(): void
     {
         // attempt reading the env value
         $role = env(self::ENV_ROLE);
@@ -107,7 +107,7 @@ class Configuration
         }
     }
 
-    protected function loadType()
+    protected function loadType(): void
     {
         // attempt reading from env
         $type = env(self::ENV_TYPE);
@@ -199,7 +199,7 @@ class Configuration
 
     /**
      * Prepare a list of commands into proper executable command objects
-     * @param array<int|string, string>
+     * @param array<string|array<string>> $commands
      * @return array<int, DeployCommand>
      */
     protected function prepareCommands(array $commands): array
@@ -213,7 +213,7 @@ class Configuration
             $object = null;
             if (is_array($command)) {
                 $params = $command;
-                $command = array_shift($params);
+                $command = array_shift($params) ?? '';
             }
 
             // check if it is a classname

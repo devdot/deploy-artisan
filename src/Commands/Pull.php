@@ -3,6 +3,7 @@
 namespace Devdot\DeployArtisan\Commands;
 
 use Devdot\DeployArtisan\DeployCommands\CleanupCommand;
+use Devdot\DeployArtisan\DeployCommands\ShellCommand;
 use Devdot\DeployArtisan\Models\Role;
 use Illuminate\Console\Command;
 
@@ -17,7 +18,7 @@ class Pull extends Command
     public function handle(): int
     {
         // get the local configuration
-        if (!$this->loadConfiguration() || !$this->configuration) {
+        if (!$this->loadConfiguration()) {
             return Command::FAILURE;
         }
 

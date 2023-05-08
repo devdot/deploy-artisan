@@ -9,5 +9,9 @@ parameters:
         -
             message: '#Function config not found#'
         -
+            message: '#Function base_path not found#'
+        -
+            message: '#Function public_path not found#'
+        -
             message: '#Call to static method add\(\) on an unknown class Illuminate\\Foundation\\Console\\AboutCommand#'
             path: src/ServiceProvider.php

@@ -20,6 +20,10 @@ class SSHTransfer implements Transfer
 
     public function prepareString(string $str, bool $withPassword = false): string
     {
+        if ($this->config->credentials === null) {
+            return $str;
+        }
+
         // lets make sure the host is formatted correctly
         $host = $this->config->credentials->host;
         $dir = '.';

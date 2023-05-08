@@ -29,21 +29,21 @@ class ShellCommand implements DeployCommand
     }
 
     /**
-     * @param array{cwd?: string, timeout?: int, silent?: bool, env?: array<string>} $parameters
+     * @param array{cwd?: string, timeout?: int, silent?: bool, env?: string|array<string>} $parameters
      * @return void
      */
     public function setParameters(array $parameters): void
     {
-        if (isset($parameters['cwd']) && is_string($parameters['cwd'])) {
+        if (isset($parameters['cwd'])) {
             $this->cwd = $parameters['cwd'];
         }
-        if (isset($parameters['timeout']) && is_numeric($parameters['timeout'])) {
+        if (isset($parameters['timeout'])) {
             $this->timeout = (int) $parameters['timeout'];
         }
         if (isset($parameters['silent'])) {
             $this->silent = $parameters['silent'] == true;
         }
-        if (isset($parameters['env']) && (is_array($parameters['env']) || is_string($parameters['env']))) {
+        if (isset($parameters['env'])) {
             $this->env = is_array($parameters['env']) ? $parameters['env'] : [$parameters['env']];
         }
     }
@@ -78,7 +78,7 @@ class ShellCommand implements DeployCommand
             });
         }
 
-        return $this->process->getExitCode();
+        return $this->process->getExitCode() ?? 127;
     }
 
     public function getProcess(): Process

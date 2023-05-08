@@ -16,7 +16,7 @@ class About extends Command
     public function handle(): int
     {
         // get the local configuration
-        if (!$this->loadConfiguration() || !$this->configuration) {
+        if (!$this->loadConfiguration()) {
             return Command::FAILURE;
         }
 
@@ -28,7 +28,7 @@ class About extends Command
             'Role' => $config->role->getStyledString(),
             'Type' => $config->type->getStyledString(),
             'Transfer File' => $config->transferFileName,
-            'Cleanup' => $config->cleanup,
+            'Cleanup' => $config->cleanup ? Helper::STR_TRUE : Helper::STR_FALSE,
         ]);
 
         // show list of files, if they any are set
@@ -56,7 +56,7 @@ class About extends Command
                 'Username' => $config->credentials->username,
                 'Password' => Helper::STR_SECRET,
                 'Host:' => $config->credentials->host,
-                'Port:' => $config->credentials->port,
+                'Port:' => strval($config->credentials->port),
             ]);
         }
 

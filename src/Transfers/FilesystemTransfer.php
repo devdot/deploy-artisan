@@ -33,19 +33,19 @@ class FilesystemTransfer implements Transfer
         $this->command->line('Copy to ' . $this->serverDirectory);
 
         // make sure the destination exists
-        if (!is_dir($this->serverDirectory)) {
+        if (!is_dir($this->serverDirectory ?? '.')) {
             $this->command->error('Directory does not exist!');
             return false;
         }
 
         // make sure the destination is writeable
-        if (!is_writeable($this->serverDirectory)) {
+        if (!is_writeable($this->serverDirectory ?? '.')) {
             $this->command->error('Directory is not writeable!');
             return false;
         }
 
         // now simply move the file
-        $return = copy(base_path($filename), realpath($this->serverDirectory) . DIRECTORY_SEPARATOR . $filename);
+        $return = copy(base_path($filename), realpath($this->serverDirectory ?? '.') . DIRECTORY_SEPARATOR . $filename);
 
         if ($return) {
             $this->command->line('Successful');
@@ -73,7 +73,7 @@ class FilesystemTransfer implements Transfer
         // strip the environment
         $cmd = new ShellCommand('env -i ' . $str);
         $cmd->setParameters([
-            'cwd' => $this->serverDirectory,
+            'cwd' => $this->serverDirectory ?? '.',
             'env' => [],
         ]);
         echo $str . PHP_EOL;

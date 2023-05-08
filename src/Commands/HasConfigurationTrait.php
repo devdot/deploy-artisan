@@ -7,7 +7,7 @@ use Devdot\DeployArtisan\Models\Configuration;
 
 trait HasConfigurationTrait
 {
-    protected ?Configuration $configuration = null;
+    protected Configuration $configuration;
 
     public function loadConfiguration(bool $catchExceptions = true, bool $showExceptions = true): bool
     {
