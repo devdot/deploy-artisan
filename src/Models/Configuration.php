@@ -167,7 +167,7 @@ class Configuration
         // TODO: Throw exception when config file not present
         // if the config is null, let's load from our own file
         if ($config === null) {
-            $config = require __DIR__ . '../../config/deployment.php';
+            $config = require __DIR__ . '/../../config/deployment.php';
         }
 
         // use the values and write them to ourself
