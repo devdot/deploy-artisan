@@ -14,6 +14,8 @@ namespace Devdot\DeployArtisan\Models;
  */
 class Credentials
 {
+    final public const DEFAULT_PORT = 22;
+
     /**
      * @param non-empty-string $username
      * @param non-empty-string|null $password
@@ -24,7 +26,7 @@ class Credentials
         public readonly string $username,
         public readonly string|null $password,
         public readonly string $host,
-        public readonly int $port = 22,
+        public readonly int $port = self::DEFAULT_PORT,
     ) {
     }
 }
