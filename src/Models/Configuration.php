@@ -9,6 +9,7 @@ use Devdot\DeployArtisan\Exceptions\InvalidCredentialsConfigurationException;
 use Devdot\DeployArtisan\Exceptions\InvalidRoleConfigurationException;
 use Devdot\DeployArtisan\Exceptions\InvalidTypeConfigurationException;
 use Illuminate\Support\Facades\App;
+use MirazMac\DotEnv\Writer;
 
 class Configuration
 {
@@ -47,6 +48,8 @@ class Configuration
      * True when credentials would be available but aren't loaded because the config does not require them
      */
     public bool $credentialsAvailable = false;
+
+    protected ?Writer $writer = null;
 
     public function isClient(): bool
     {
@@ -245,9 +248,52 @@ class Configuration
         return $return;
     }
 
+    protected function getWriter(): Writer
+    {
+        if ($this->writer === null) {
+            $this->writer = new Writer(App::environmentFilePath());
+        }
+        return $this->writer;
+    }
+
     public function write(): bool
     {
+        $success = true;
+        $success = $this->writeRole() && $success;
+        $success = $this->writeType() && $success;
+        $success = $this->writeCredentials() && $success;
 
-        return false;
+        return $success;
+    }
+
+    public function writeRole(): bool
+    {
+        $writer = $this->getWriter();
+        $writer->set(self::ENV_ROLE, $this->role->value);
+
+        return $writer->write();
+    }
+
+    public function writeType(): bool
+    {
+        $writer = $this->getWriter();
+        $writer->set(self::ENV_TYPE, $this->type->value);
+
+        return $writer->write();
+    }
+
+    public function writeCredentials(): bool
+    {
+        if ($this->credentials === null) {
+            return false;
+        }
+
+        $writer = $this->getWriter();
+        $writer->set(self::ENV_CREDENTIALS_USERNAME, $this->credentials->username, true);
+        $writer->set(self::ENV_CREDENTIALS_PASSWORD, $this->credentials->password, true);
+        $writer->set(self::ENV_CREDENTIALS_HOST, $this->credentials->host);
+        $writer->set(self::ENV_CREDENTIALS_PORT, $this->credentials->port);
+
+        return $writer->write();
     }
 }
