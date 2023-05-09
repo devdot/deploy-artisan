@@ -29,12 +29,12 @@ class System
 
         // let's see if we can access the shell
         // run through our shell wrapper and if that fails, nothing will work
-        $cmd = new ShellCommand('ls');
+        $cmd = new ShellCommand('whoami');
         $cmd->setParameters(['silent' => true]);
         try {
             // run this and see if it fails
             $cmd->handle(new Configuration());
-            if (!empty($cmd->getProcess()->getOutput()) || !empty($cmd->getProcess()->getOutput())) {
+            if (!empty($cmd->getProcess()->getOutput()) || !empty($cmd->getProcess()->getErrorOutput())) {
                 $this->hasShellAccess = true;
             }
         } catch (\Exception $e) {
