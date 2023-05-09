@@ -51,32 +51,36 @@ class Configure extends Command
         ], $this->newConfig->isServer() ? 0 : 1);
 
         // main switch for this
-        match ($mode) {
-            'everything' => [
-                $this->configureThisEnvironment(),
-                $this->configureFromServer(),
-                $this->configureFromClient(),
-                $this->configureTransfer(),
-            ],
-            'only this environment' => $this->configureThisEnvironment(),
-            'only transfer' => $this->configureTransfer(),
-            'from client perspective' => [
-                $this->configureThisEnvironment(),
-                $this->configureFromClient(),
-                $this->configureTransfer(),
-            ],
-            'from server perspective' => [
-                $this->configureThisEnvironment(),
-                $this->configureFromServer(),
-            ],
-        };
+        switch ($mode) {
+            case 'everything':
+                $this->configureThisEnvironment();
+                $this->configureFromServer();
+                $this->configureFromClient();
+                $this->configureTransfer();
+                break;
+            case 'only this environment':
+                $this->configureThisEnvironment();
+                break;
+            case 'only transfer':
+                $this->configureTransfer();
+                break;
+            case 'from client perspective':
+                $this->configureThisEnvironment();
+                $this->configureFromClient();
+                $this->configureTransfer();
+                break;
+            case 'from server perspective':
+                $this->configureThisEnvironment();
+                $this->configureFromServer();
+                break;
+        }
 
 
         return Command::SUCCESS;
     }
 
     /**
-     * @param array{?username: bool, ?password: bool, ?host: bool, ?port: bool} $required Require them if true, simply ask if false, and don't even ask if null/undefined
+     * @param array{username?: bool, password?: bool, host?: bool, port?: bool} $required Require them if true, simply ask if false, and don't even ask if null/undefined
      * @return \Devdot\DeployArtisan\Models\Credentials
      */
     private function askForCredentials(array $required): Credentials
@@ -133,7 +137,7 @@ class Configure extends Command
         $this->line('App environment: ' . App::environment());
 
         // determine the default role
-        $defaultRole = $this->configuration ? $this->configuration->role : Role::Undefined;
+        $defaultRole = $this->configuration ? $this->configuration->role : Role::Undefined; // @phpstan-ignore-line
         if ($defaultRole === Role::Undefined) {
             $defaultRole = App::environment('local') ? Role::Client : Role::Server;
         }
@@ -144,7 +148,7 @@ class Configure extends Command
             'client',
             'none (leave undefined)',
         ], $defaultRole === Role::Server ? 0 : 1);
-        $this->newConfig->role = Role::tryFrom(strtoupper($role)) ?? Role::Undefined;
+        $this->newConfig->role = Role::tryFrom(strtoupper(strval($role))) ?? Role::Undefined;
 
         // and lets write
         if ($this->newConfig->writeRole()) {
@@ -179,7 +183,7 @@ class Configure extends Command
             Type::Filesystem->value => 'Filesystem (locally available)',
             Type::Manual->value => 'No automatic transfer',
         ]);
-        $this->newConfig->type = Type::tryFrom($type) ?? Type::Undefined;
+        $this->newConfig->type = Type::tryFrom(strval($type)) ?? Type::Undefined;
 
         // check if we need credentials
         if ($this->newConfig->type === Type::SSH) {

@@ -39,11 +39,11 @@ class Configuration
     public array $serverCommands = [];
 
     /**
-     * @var array<int, string|array<string>> $clientCommandsStrings
+     * @var array<string|array<string|bool|int>> $clientCommandsStrings
      */
     protected array $clientCommandsStrings = [];
     /**
-     * @var array<int, string|array<string>> $serverCommandsStrings
+     * @var array<string|array<string|bool|int>> $serverCommandsStrings
      */
     protected array $serverCommandsStrings = [];
 
@@ -216,7 +216,7 @@ class Configuration
     }
 
     /**
-     * @param array<string|array<string>> $commands
+     * @param array<string|array<string|bool|int>> $commands
      */
     public function setClientCommands(array $commands): void
     {
@@ -225,7 +225,7 @@ class Configuration
     }
 
     /**
-     * @param array<string|array<string>> $commands
+     * @param array<string|array<string|bool|int>> $commands
      */
     public function setServerCommands(array $commands): void
     {
@@ -235,7 +235,7 @@ class Configuration
 
     /**
      * Prepare a list of commands into proper executable command objects
-     * @param array<string|array<string>> $commands
+     * @param array<string|array<string|bool|int>> $commands
      * @return array<int, DeployCommand>
      */
     protected function prepareCommands(array $commands): array
@@ -249,7 +249,7 @@ class Configuration
             $object = null;
             if (is_array($command)) {
                 $params = $command;
-                $command = array_shift($params) ?? '';
+                $command = (string) (array_shift($params) ?? '');
             }
 
             // check if it is a classname
@@ -286,8 +286,7 @@ class Configuration
 
     public function write(): bool
     {
-        $success = true;
-        $success = $this->writeRole() && $success;
+        $success = $this->writeRole();
         $success = $this->writeType() && $success;
         $success = $this->writeCredentials() && $success;
         $success = $this->writeConfig() && $success;
@@ -319,9 +318,9 @@ class Configuration
 
         $writer = $this->getWriter();
         $writer->set(self::ENV_CREDENTIALS_USERNAME, $this->credentials->username, true);
-        $writer->set(self::ENV_CREDENTIALS_PASSWORD, $this->credentials->password, true);
+        $writer->set(self::ENV_CREDENTIALS_PASSWORD, strval($this->credentials->password), true);
         $writer->set(self::ENV_CREDENTIALS_HOST, $this->credentials->host);
-        $writer->set(self::ENV_CREDENTIALS_PORT, $this->credentials->port);
+        $writer->set(self::ENV_CREDENTIALS_PORT, strval($this->credentials->port));
 
         return $writer->write();
     }
@@ -346,7 +345,7 @@ class Configuration
         ];
         foreach ($path_methods as $name => $path) {
             $value = str_replace('/', '\/', $path);
-            $export = preg_replace('/(\'' . $value . '\/)(.*?)\'/', '' . $name . '(\'$2\')', $export);
+            $export = preg_replace('/(\'' . $value . '\/)(.*?)\'/', '' . $name . '(\'$2\')', $export) ?? '';
         }
 
         // style the export
