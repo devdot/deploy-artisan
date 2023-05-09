@@ -4,6 +4,7 @@ namespace Devdot\DeployArtisan\Commands;
 
 use Devdot\DeployArtisan\DeployCommands\CleanupCommand;
 use Devdot\DeployArtisan\DeployCommands\ShellCommand;
+use Devdot\DeployArtisan\Models\Credentials;
 use Devdot\DeployArtisan\Models\Role;
 use Devdot\DeployArtisan\Models\Type;
 use Devdot\DeployArtisan\Transfers\FilesystemTransfer;
@@ -88,6 +89,19 @@ class Push extends Command
         if ($transfer === null) {
             $this->error('Could not create transfer object for type ' . $this->configuration->type->value);
             return Command::FAILURE;
+        }
+
+        // let's see if we need to look for a password
+        if ($this->configuration->type === Type::SSH && $this->configuration->credentials &&  $this->configuration->credentials->password === null) {
+            // create new credentials by asking for password
+            $pwd = $this->secret('Enter password for ' . $this->configuration->credentials->username . '@' . $this->configuration->credentials->host);
+            $credentials = new Credentials(
+                $this->configuration->credentials->username,
+                strval($pwd) !== '' ? strval($pwd) : null,
+                $this->configuration->credentials->host,
+                $this->configuration->credentials->port,
+            );
+            $this->configuration->credentials = $credentials;
         }
 
         $this->line('Start transfer of type ' . $this->configuration->type->value);

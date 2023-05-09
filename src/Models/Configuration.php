@@ -144,8 +144,13 @@ class Configuration
         }
 
         // now lets see if anything is missing or empty
-        if (empty($username) || empty($password) || empty($host)) {
-            throw new InvalidCredentialsConfigurationException(' Username, password and host all have to be set!');
+        if (empty($username) || empty($host)) {
+            throw new InvalidCredentialsConfigurationException(' Username and host all have to be set!');
+        }
+
+        // make sure the password is never empty, but null
+        if (empty($password)) {
+            $password = null;
         }
 
         // we have enough valid input to create the object
