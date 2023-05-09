@@ -119,7 +119,7 @@ class Configuration
         $this->type = Type::tryFrom(strtoupper($type)) ?? Type::Undefined;
 
         // make sure this isn't an invalid value
-        if ($this->type === Type::Undefined && !empty($type)) {
+        if ($this->type === Type::Undefined && !empty($type) && Type::Undefined->value !== $type) {
             // this could not be matched correctly, meaning the value was wrong
             throw new InvalidTypeConfigurationException($type);
         }
