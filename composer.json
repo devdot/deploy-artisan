@@ -25,7 +25,8 @@
         "illuminate/contracts": "^9",
         "illuminate/console": "^9",
         "symfony/process": "^6",
-        "mirazmac/dotenvwriter": "^0.1.0"
+        "mirazmac/dotenvwriter": "^0.1.0",
+        "symfony/var-exporter": "^6.2"
     },
     "extra": {
         "laravel": {

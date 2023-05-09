@@ -10,6 +10,7 @@ use Devdot\DeployArtisan\Exceptions\InvalidRoleConfigurationException;
 use Devdot\DeployArtisan\Exceptions\InvalidTypeConfigurationException;
 use Illuminate\Support\Facades\App;
 use MirazMac\DotEnv\Writer;
+use Symfony\Component\VarExporter\VarExporter;
 
 class Configuration
 {
@@ -36,6 +37,15 @@ class Configuration
      * @var array<int, DeployCommand>
      */
     public array $serverCommands = [];
+
+    /**
+     * @var array<int, string|array<string>> $clientCommandsStrings
+     */
+    protected array $clientCommandsStrings = [];
+    /**
+     * @var array<int, string|array<string>> $serverCommandsStrings
+     */
+    protected array $serverCommandsStrings = [];
 
     final protected const ENV_ROLE = 'DEPLOY_ROLE';
     final protected const ENV_TYPE = 'DEPLOY_TYPE';
@@ -201,8 +211,26 @@ class Configuration
         }
 
         // load commands
-        $this->clientCommands = $this->prepareCommands($config['client'] ?? []);
-        $this->serverCommands = $this->prepareCommands($config['server'] ?? []);
+        $this->setClientCommands($config['client'] ?? []);
+        $this->setServerCommands($config['server'] ?? []);
+    }
+
+    /**
+     * @param array<string|array<string>> $commands
+     */
+    public function setClientCommands(array $commands): void
+    {
+        $this->clientCommandsStrings = $commands;
+        $this->clientCommands = $this->prepareCommands($commands);
+    }
+
+    /**
+     * @param array<string|array<string>> $commands
+     */
+    public function setServerCommands(array $commands): void
+    {
+        $this->serverCommandsStrings = $commands;
+        $this->serverCommands = $this->prepareCommands($commands);
     }
 
     /**
@@ -262,6 +290,7 @@ class Configuration
         $success = $this->writeRole() && $success;
         $success = $this->writeType() && $success;
         $success = $this->writeCredentials() && $success;
+        $success = $this->writeConfig() && $success;
 
         return $success;
     }
@@ -295,5 +324,49 @@ class Configuration
         $writer->set(self::ENV_CREDENTIALS_PORT, $this->credentials->port);
 
         return $writer->write();
+    }
+
+    public function writeConfig(): bool
+    {
+        $config = [
+            'transfer_files' => $this->transferFiles,
+            'transfer_file_name' => $this->transferFileName,
+            'verify_git' => $this->verifyGit,
+            'cleanup' => $this->cleanup,
+            'client' => $this->clientCommandsStrings,
+            'server' => $this->serverCommandsStrings,
+        ];
+
+        $export = VarExporter::export($config);
+
+        // replace path strings
+        $path_methods = [
+            'public_path' => public_path(),
+            'base_path' => base_path(),
+        ];
+        foreach ($path_methods as $name => $path) {
+            $value = str_replace('/', '\/', $path);
+            $export = preg_replace('/(\'' . $value . '\/)(.*?)\'/', '' . $name . '(\'$2\')', $export);
+        }
+
+        // style the export
+        $export = strtr($export, [
+            '\'Devdot\\\\DeployArtisan\\\\DeployCommands\\\\ArtisanCommand\'' => 'ArtisanCommand::class',
+            '\'Devdot\\\\DeployArtisan\\\\DeployCommands\\\\CleanupCommand\'' => 'CleanupCommand::class',
+            '\'Devdot\\\\DeployArtisan\\\\DeployCommands\\\\UnzipTransferFileCommand\'' => 'UnzipTransferFileCommand::class',
+            '\'Devdot\\\\DeployArtisan\\\\DeployCommands\\\\ZipTransferFileCommand\'' => 'ZipTransferFileCommand::class',
+        ]);
+
+        $str = '<?php' . PHP_EOL
+            . PHP_EOL
+            . 'use Devdot\DeployArtisan\DeployCommands\ArtisanCommand;' . PHP_EOL
+            . 'use Devdot\DeployArtisan\DeployCommands\CleanupCommand;' . PHP_EOL
+            . 'use Devdot\DeployArtisan\DeployCommands\UnzipTransferFileCommand;' . PHP_EOL
+            . 'use Devdot\DeployArtisan\DeployCommands\ZipTransferFileCommand;' . PHP_EOL
+            . PHP_EOL
+            . 'return ' . $export . ';' . PHP_EOL
+        ;
+
+        return file_put_contents(config_path('deployment.php'), $str) == true;
     }
 }
