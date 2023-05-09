@@ -277,7 +277,8 @@ class Configure extends Command
         }
 
         // let's start collecting data
-        $this->line('Do you want to have any of these recommended commands in the client script:');
+        $this->newLine();
+        $this->line('Do you want to have any of these recommended commands in the server script:');
         $server = []; // commands to run at the server
         $client = []; // commands to run at the client
         $files = [];
