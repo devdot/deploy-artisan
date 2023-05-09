@@ -28,7 +28,7 @@ class About extends Command
             'Role' => $config->role->getStyledString(),
             'Type' => $config->type->getStyledString(),
             'Transfer File' => $config->transferFileName,
-            'Cleanup' => $config->cleanup ? Helper::STR_TRUE : Helper::STR_FALSE,
+            'Cleanup' => Helper::bool($config->cleanup),
         ]);
 
         // show list of files, if they any are set
