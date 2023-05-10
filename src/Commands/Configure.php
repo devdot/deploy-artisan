@@ -193,7 +193,7 @@ class Configure extends Command
 
         // check if there are any required and if so, ask for them
         if (!empty($required)) {
-            $this->askForCredentials($required);
+            $this->newConfig->credentials = $this->askForCredentials($required);
         }
 
         // write
