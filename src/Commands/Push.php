@@ -98,7 +98,8 @@ class Push extends Command
         }
 
         $this->line('Start transfer of type ' . $this->configuration->type->value);
-        if (!$transfer->pushToServer()) {
+        // check if the push worked, but only return error when there are files to move
+        if (!$transfer->pushToServer() && !empty($this->configuration->transferFiles)) {
             $this->error('failed!');
             return Command::FAILURE;
         }
