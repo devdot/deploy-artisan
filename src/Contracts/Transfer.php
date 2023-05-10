@@ -16,5 +16,7 @@ interface Transfer
 
     public function pushToServer(): bool;
 
+    public function callServerShell(string $command): bool;
+
     public function callServerScript(?string $gitVerification): bool;
 }

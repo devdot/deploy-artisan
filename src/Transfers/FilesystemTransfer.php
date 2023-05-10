@@ -2,19 +2,17 @@
 
 namespace Devdot\DeployArtisan\Transfers;
 
-use Devdot\DeployArtisan\Contracts\Transfer;
 use Devdot\DeployArtisan\DeployCommands\ShellCommand;
 use Illuminate\Console\Command;
 use Devdot\DeployArtisan\Models\Configuration;
 
-class FilesystemTransfer implements Transfer
+class FilesystemTransfer extends Transfer
 {
     protected ?string $serverDirectory = null;
 
-    public function __construct(
-        protected Command $command,
-        protected Configuration $config,
-    ) {
+    public function __construct(Command $command, Configuration $config)
+    {
+        parent::__construct($command, $config);
         $this->serverDirectory = $this->config->credentials->host ?? null;
     }
 
@@ -29,15 +27,14 @@ class FilesystemTransfer implements Transfer
     {
         $filename = $this->config->transferFileName;
 
+        // this will simply move to a defined folder
+        $this->command->line('FS> Copy to ' . $this->serverDirectory);
+
         // make sure the file is available here
         if (!is_file(base_path($filename))) {
             $this->command->error('File ' . $filename . ' not found, cannot move');
             return false;
         }
-
-        // this will simply move to a defined folder
-
-        $this->command->line('Copy to ' . $this->serverDirectory);
 
         // make sure the destination exists
         if (!is_dir($this->serverDirectory ?? '.')) {
@@ -63,29 +60,20 @@ class FilesystemTransfer implements Transfer
         return $return;
     }
 
-    public function callServerScript(?string $gitVerification): bool
+    public function callServerShell(string $command): bool
     {
-        // build verify string
-        $verify = '';
-        if ($this->config->verifyGit) {
-            if ($gitVerification === null) {
-                $this->command->error('Git commit verification is enabled but missing!');
-                return false;
-            }
-            $verify = ' --verify-git=' . $gitVerification;
-        }
+        $this->command->line('FS> ' . $command);
 
-        // execute the server script
-        $str = 'php artisan deploy:pull --no-interaction' . $verify;
-        // strip the environment
-        $cmd = new ShellCommand('env -i ' . $str);
+        // simply use a shell command
+        // prepend env function to clean env variables in call
+        $cmd = new ShellCommand('env -i ' . $command);
+
+        // set the working directory (cwd) to the directory
         $cmd->setParameters([
             'cwd' => $this->serverDirectory ?? '.',
             'env' => [],
         ]);
-        echo $str . PHP_EOL;
-        $return = $cmd->handle($this->config);
 
-        return $return === 0;
+        return $cmd->handle($this->config) === 0;
     }
 }

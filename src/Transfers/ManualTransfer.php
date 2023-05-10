@@ -2,32 +2,17 @@
 
 namespace Devdot\DeployArtisan\Transfers;
 
-use Devdot\DeployArtisan\Contracts\Transfer;
-use Illuminate\Console\Command;
-use Devdot\DeployArtisan\Models\Configuration;
-
-class ManualTransfer implements Transfer
+class ManualTransfer extends Transfer
 {
-    public function __construct(
-        protected Command $command,
-        protected Configuration $config,
-    ) {
-    }
-
-    public function getRequiredCredentials(): array
-    {
-        return [];
-    }
-
     public function pushToServer(): bool
     {
         echo 'Manual transfer does not copy anything!' . PHP_EOL;
-        return true;
+        return false;
     }
 
-    public function callServerScript(?string $gitVerification): bool
+    public function callServerShell(string $command): bool
     {
         echo 'Manual transfer does not execute anything!' . PHP_EOL;
-        return true;
+        return false;
     }
 }
