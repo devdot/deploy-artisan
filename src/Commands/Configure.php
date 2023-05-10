@@ -2,6 +2,7 @@
 
 namespace Devdot\DeployArtisan\Commands;
 
+use Devdot\DeployArtisan\Factories\TransferFactory;
 use Devdot\DeployArtisan\Models\Configuration;
 use Devdot\DeployArtisan\Models\Credentials;
 use Devdot\DeployArtisan\Models\Role;
@@ -186,19 +187,13 @@ class Configure extends Command
         $this->newConfig->type = Type::tryFrom(strval($type)) ?? Type::Undefined;
 
         // check if we need credentials
-        if ($this->newConfig->type === Type::SSH) {
-            $this->newConfig->credentials = $this->askForCredentials([
-                'username' => true,
-                'password' => true,
-                'host' => true,
-                'port' => false,
-            ]);
-        }
+        // create the transfer and then ask it
+        $transfer = TransferFactory::createFromType($this->newConfig->type, $this, $this->newConfig);
+        $required = $transfer ? $transfer->getRequiredCredentials() : [];
 
-        if ($this->newConfig->type === Type::Filesystem) {
-            $this->newConfig->credentials = $this->askForCredentials([
-                'host' => true,
-            ]);
+        // check if there are any required and if so, ask for them
+        if (!empty($required)) {
+            $this->askForCredentials($required);
         }
 
         // write
@@ -351,6 +346,11 @@ class Configure extends Command
         // we are done with those sort of questions
         $files = array_values(array_unique($files));
         $client = array_reverse($client);
+
+        // let's see if we used composer in the client script, and if so add a command to go back
+        if (!$useComposer && in_array('composer install --optimize-autoloader --no-dev', $client)) {
+            $client[] = 'composer install --dev';
+        }
 
         // now let's see if they want artisan commands
         // run in batch

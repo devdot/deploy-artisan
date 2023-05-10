@@ -14,6 +14,11 @@ class ManualTransfer implements Transfer
     ) {
     }
 
+    public function getRequiredCredentials(): array
+    {
+        return [];
+    }
+
     public function pushToServer(): bool
     {
         echo 'Manual transfer does not copy anything!' . PHP_EOL;

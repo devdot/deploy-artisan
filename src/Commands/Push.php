@@ -85,7 +85,7 @@ class Push extends Command
         }
 
         // let's see if we need to look for a password
-        if ($this->configuration->type === Type::SSH && $this->configuration->credentials &&  $this->configuration->credentials->password === null) {
+        if (isset($transfer->getRequiredCredentials()['password']) && $this->configuration->credentials &&  $this->configuration->credentials->password === null) {
             // create new credentials by asking for password
             $pwd = $this->secret('Enter password for ' . $this->configuration->credentials->username . '@' . $this->configuration->credentials->host);
             $credentials = new Credentials(

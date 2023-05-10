@@ -18,6 +18,16 @@ class SSHTransfer implements Transfer
     ) {
     }
 
+    public function getRequiredCredentials(): array
+    {
+        return [
+            'username' => true,
+            'password' => true,
+            'host' => true,
+            'port' => false,
+        ];
+    }
+
     public function prepareString(string $str, bool $withPassword = false): string
     {
         if ($this->config->credentials === null) {

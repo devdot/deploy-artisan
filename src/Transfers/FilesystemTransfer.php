@@ -18,6 +18,13 @@ class FilesystemTransfer implements Transfer
         $this->serverDirectory = $this->config->credentials->host ?? null;
     }
 
+    public function getRequiredCredentials(): array
+    {
+        return [
+            'host' => true,
+        ];
+    }
+
     public function pushToServer(): bool
     {
         $filename = $this->config->transferFileName;
