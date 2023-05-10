@@ -33,6 +33,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             Commands\Push::class,
             Commands\Pull::class,
             Commands\Configure::class,
+            Commands\ServerExec::class,
         ]);
 
         // publish the config file
