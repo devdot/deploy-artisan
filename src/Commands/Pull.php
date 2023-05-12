@@ -37,6 +37,10 @@ class Pull extends Command
 
         // check if we shall verify git
         if ($this->option('verify-git')) {
+            $this->line('Attempt git verification, pull first');
+            $cmd = new ShellCommand('git pull --rebase');
+            $cmd->handle($this->configuration);
+
             $compare = strval($this->option('verify-git'));
 
             // use a command to load the last commit
