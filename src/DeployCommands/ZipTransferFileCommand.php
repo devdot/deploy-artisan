@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 class ZipTransferFileCommand extends ShellCommand
 {
     final protected const SHELL_ZIP_CMD = 'zip -r "%s" -b "%s" "%s"';
+    // TODO: this is not working properly
     final protected const SHELL_CLEANUP_CMD = 'rm -f "%s"';
 
     protected bool $useShell = false;
