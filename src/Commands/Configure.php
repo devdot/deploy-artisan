@@ -144,12 +144,13 @@ class Configure extends Command
         }
 
         // ask for the role
+        /** @var string */
         $role = $this->choice('Which role should this environment have?', [
             'server',
             'client',
             'none (leave undefined)',
-        ], $defaultRole === Role::Server ? 0 : 1);
-        $this->newConfig->role = Role::tryFrom(strtoupper(strval($role))) ?? Role::Undefined;
+        ], $defaultRole === Role::Server ? 0 : 1, null, false);
+        $this->newConfig->role = Role::tryFrom(strtoupper($role)) ?? Role::Undefined;
 
         // and lets write
         if ($this->newConfig->writeRole()) {
@@ -179,11 +180,12 @@ class Configure extends Command
         }
 
         // ask for transfer types
+        /** @var string */
         $type = $this->choice('Which transfer type should be configured?', [
             Type::SSH->value => 'SSH' . ($system && !$system->hasSsh ? self::NOT_DETECTED : ''),
             Type::Filesystem->value => 'Filesystem (locally available)',
             Type::Manual->value => 'No automatic transfer',
-        ]);
+        ], 0, null, false);
         $this->newConfig->type = Type::tryFrom(strval($type)) ?? Type::Undefined;
 
         // check if we need credentials

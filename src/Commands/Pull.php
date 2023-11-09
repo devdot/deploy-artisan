@@ -41,7 +41,9 @@ class Pull extends Command
             $cmd = new ShellCommand('git pull --rebase');
             $cmd->handle($this->configuration);
 
-            $compare = strval($this->option('verify-git'));
+            /** @var string */
+            $compare = $this->option('verify-git');
+            $compare = strval($compare);
 
             // use a command to load the last commit
             $cmd = new ShellCommand('git log -1 --pretty=oneline');
