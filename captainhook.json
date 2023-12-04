@@ -3,7 +3,7 @@
         "enabled": true,
         "actions": [
             {
-                "action": "php vendor/bin/phpcbf src --standard=PSR12"
+                "action": "composer format"
             }
         ]
     },
@@ -11,7 +11,7 @@
         "enabled": true,
         "actions": [
             {
-                "action": "vendor/bin/phpstan"
+                "action": "composer check-static"
             }
         ]
     }
